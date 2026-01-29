@@ -35,6 +35,19 @@ def check_mst(adj_mat: np.ndarray,
             total += mst[i, j]
     assert approx_equal(total, expected_weight), 'Proposed MST has incorrect expected weight'
 
+    # Check that MST has correct number of edges (n-1 for n vertices)                              
+    n = mst.shape[0]                                                                               
+    num_edges = np.sum(mst > 0) // 2  # divide by 2 since matrix is symmetric                      
+    assert num_edges == n - 1, f'MST should have {n-1} edges, but has {num_edges}'                 
+                                                                                                    
+    # Check that MST is symmetric (undirected)                                                     
+    assert np.allclose(mst, mst.T), 'MST adjacency matrix should be symmetric'                     
+                                                                                                    
+    # Check that all MST edges exist in original graph                                             
+    for i in range(n):                                                                             
+        for j in range(i + 1, n):                                                                  
+            if mst[i, j] > 0:                                                                      
+                assert adj_mat[i, j] > 0, f'MST contains edge ({i},{j}) not in original graph'
 
 def test_mst_small():
     """
@@ -70,5 +83,14 @@ def test_mst_student():
     
     TODO: Write at least one unit test for MST construction.
     
-    """
-    pass
+    """                                                                   
+    adj_mat = np.array([                                                                           
+        [0, 2, 3],                                                                                 
+        [2, 0, 1],                                                                                 
+        [3, 1, 0]                                                                                  
+    ], dtype=float)                                                                                
+                                                                                                    
+    g = Graph(adj_mat)                                                                             
+    g.construct_mst()                                                                              
+                                                                                                    
+    check_mst(g.adj_mat, g.mst, expected_weight=3)
